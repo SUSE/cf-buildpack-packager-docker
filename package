@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+if [ ! -d /out ]; then
+    echo "The /out directory has not been mapped"
+    exit 1
+fi
+
+LANGUAGE=$1
+PACKAGER_DIR=src/${LANGUAGE}/vendor/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
+
+set -x
+git clone --recursive https://github.com/SUSE/cf-${LANGUAGE}-buildpack
+cd cf-${LANGUAGE}-buildpack
+
+if [ -f cf.Gemfile ]; then
+    BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3
+    BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached
+elif [[ -f .envrc && -d ${PACKAGER_DIR} ]]; then
+    source .envrc
+    (cd ${PACKAGER_DIR} && go install)
+    buildpack-packager --cached
+else
+    echo "Don't know how to build this buildpack"
+    exit 1
+fi
+
+mv *.zip /out/
