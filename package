@@ -32,36 +32,51 @@ EOF
     done
 fi
 
-set -e
+function package() {
+    LANGUAGE=$1
+    PACKAGER_DIR=src/${LANGUAGE}/vendor/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
+    URL=https://github.com/SUSE/cf-${LANGUAGE}-buildpack
 
-LANGUAGE=$1
-PACKAGER_DIR=src/${LANGUAGE}/vendor/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
-URL=https://github.com/SUSE/cf-${LANGUAGE}-buildpack
+    if ! curl --head --silent --fail --output /dev/null ${URL}; then
+        echo "Can't fetch buildpack from ${URL}"
+        exit 1
+    fi
 
-if ! curl --head --silent --fail --output /dev/null ${URL}; then
-    echo "Can't fetch buildpack from ${URL}"
-    exit 1
-fi
+    cd ${HOME}
+    set -ex
 
-set -x
-git clone --recursive ${URL}
-cd cf-${LANGUAGE}-buildpack
+    git clone --recursive ${URL}
+    cd cf-${LANGUAGE}-buildpack
 
-if [ -f cf.Gemfile ]; then
-    BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 config build.nokogiri --use-system-libraries
-    BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3
-    BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached
-elif [[ -f Gemfile && -f Rakefile ]]; then
-    bundle.ruby2.3
-    bundle.ruby2.3 exec rake clean package OFFLINE=true PINNED=true
-    cd build
-elif [[ -f .envrc && -d ${PACKAGER_DIR} ]]; then
-    source .envrc
-    (cd ${PACKAGER_DIR} && go install)
-    buildpack-packager --cached
+    if [ -f cf.Gemfile ]; then
+        BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 config build.nokogiri --use-system-libraries
+        BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3
+        BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached
+    elif [[ -f Gemfile && -f Rakefile ]]; then
+        bundle.ruby2.3
+        bundle.ruby2.3 exec rake clean package OFFLINE=true PINNED=true
+        cd build
+    elif [[ -f .envrc && -d ${PACKAGER_DIR} ]]; then
+        source .envrc
+        (cd ${PACKAGER_DIR} && go install)
+        buildpack-packager --cached
+    else
+        echo "Don't know how to build the SUSE/cf-${LANGUAGE}-buildpack"
+        exit 1
+    fi
+
+    mv *.zip /out/
+    set +ex
+}
+
+if [ "${1:-}" == "--all" ]; then
+    # skipping dotnet-core for now because it has no SUSE assets yet
+    for language in binary go java nodejs php python ruby staticfile; do
+        package ${language}
+    done
 else
-    echo "Don't know how to build the SUSE/cf-${LANGUAGE}-buildpack"
-    exit 1
+    package $@
 fi
 
-mv *.zip /out/
+cd /out
+ls -l *.zip
