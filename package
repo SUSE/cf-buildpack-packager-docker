@@ -34,6 +34,7 @@ fi
 
 function package() {
     LANGUAGE=$1
+    VERSION=$2
     PACKAGER_DIR=src/${LANGUAGE}/vendor/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
     URL=https://github.com/SUSE/cf-${LANGUAGE}-buildpack
 
@@ -47,6 +48,10 @@ function package() {
 
     git clone --recursive ${URL}
     cd cf-${LANGUAGE}-buildpack
+    if [ -n "${VERSION}" ]; then
+        git checkout ${VERSION}
+        git submodule update --init --recursive
+    fi
 
     if [ -f cf.Gemfile ]; then
         BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 config build.nokogiri --use-system-libraries
