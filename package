@@ -9,9 +9,15 @@ fi
 
 LANGUAGE=$1
 PACKAGER_DIR=src/${LANGUAGE}/vendor/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
+URL=https://github.com/SUSE/cf-${LANGUAGE}-buildpack
+
+if ! curl --head --silent --fail --output /dev/null ${URL}; then
+    echo "Can't fetch buildpack from ${URL}"
+    exit 1
+fi
 
 set -x
-git clone --recursive https://github.com/SUSE/cf-${LANGUAGE}-buildpack
+git clone --recursive ${URL}
 cd cf-${LANGUAGE}-buildpack
 
 if [ -f cf.Gemfile ]; then
