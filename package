@@ -7,6 +7,25 @@ if [ ! -d /out ]; then
     exit 1
 fi
 
+if [ "${1:-}" == "--i-agree" ]; then
+    shift
+else
+    cat <<'EOF'
+---> Disclaimer about external binaries goes here <---
+
+For automation purposes you can use the --i-agree commandline option to
+accept this disclaimer without the interactive prompt.
+
+Do you agree to the disclaimer?
+EOF
+    select answer in Yes No; do
+        case ${answer} in
+            Yes ) break;;
+            No  ) exit;;
+        esac
+    done
+fi
+
 LANGUAGE=$1
 PACKAGER_DIR=src/${LANGUAGE}/vendor/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
 URL=https://github.com/SUSE/cf-${LANGUAGE}-buildpack
