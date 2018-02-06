@@ -8,19 +8,24 @@ fi
 if [ "${1:---help}" == "--help" ]; then
     shift
     cat <<'EOF'
-usage: package [-i--agree] [--all | LANGUAGE [TAG]]
+usage: package [--accept-external-binaries] [--all | LANGUAGE [TAG]]
 EOF
     exit
 fi
 
-if [ "${1:-}" == "--i-agree" ]; then
+if [ "${1:-}" == "--accept-external-binaries" ]; then
     shift
 else
     cat <<'EOF'
----> Disclaimer about external binaries goes here <---
 
-For automation purposes you can use the --i-agree commandline option to
-accept this disclaimer without the interactive prompt.
+Some Cloud Foundry buildpacks can reference binaries with proprietary or
+mutually incompatible open source licenses which cannot be distributed
+together as offline/cached buildpack archives. Operators who wish
+to package and maintain offline buildpacks will be responsible for any
+required licensing or export compliance obligations.
+
+For automation purposes you can use the --accept-external-binaries commandline
+option to accept this disclaimer without the interactive prompt.
 
 Do you agree to the disclaimer?
 EOF
