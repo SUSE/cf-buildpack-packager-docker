@@ -8,7 +8,10 @@ fi
 if [ "${1:---help}" == "--help" ]; then
     shift
     cat <<'EOF'
-usage: package [--accept-external-binaries] [--all | LANGUAGE [TAG]]
+usage: package [--accept-external-binaries] ORG [all | LANGUAGE [TAG]]
+
+ORG is the github organization hosting the buildpack repos, i.e.
+"cloudfoundry" or "SUSE".
 EOF
     exit
 fi
@@ -38,10 +41,11 @@ EOF
 fi
 
 function package() {
-    LANGUAGE=$1
-    VERSION=$2
+    ORG=$1
+    LANGUAGE=$2
+    VERSION=$3
     PACKAGER_DIR=src/${LANGUAGE}/vendor/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
-    URL=https://github.com/SUSE/cf-${LANGUAGE}-buildpack
+    URL=https://github.com/${ORG}/cf-${LANGUAGE}-buildpack
 
     if ! curl --head --silent --fail --output /dev/null ${URL}; then
         echo "Can't fetch buildpack from ${URL}"
@@ -71,7 +75,7 @@ function package() {
         (cd ${PACKAGER_DIR} && go install)
         buildpack-packager --cached
     else
-        echo "Don't know how to build the SUSE/cf-${LANGUAGE}-buildpack"
+        echo "Don't know how to build the ${ORG}/cf-${LANGUAGE}-buildpack"
         exit 1
     fi
 
@@ -79,13 +83,22 @@ function package() {
     set +ex
 }
 
-if [ "${1:-}" == "--all" ]; then
-    # skipping dotnet-core for now because it has no SUSE assets yet
-    for language in binary go java nodejs php python ruby staticfile; do
-        package ${language}
+org=$1
+shift
+if [ "${org}" == "suse" ]; then
+    org=SUSE
+fi
+
+if [ "${2:-}" == "all" ]; then
+    for language in binary dotnet-core go java nodejs php python ruby staticfile; do
+        # skipping dotnet-core for now because it has no SUSE assets yet
+        if [ "${org}" == "SUSE" && "${language}" == "dotnet-core" ]; then
+            continue
+        fi
+        package ${org} ${language}
     done
 else
-    package $@
+    package $org $@
 fi
 
 cd /out
