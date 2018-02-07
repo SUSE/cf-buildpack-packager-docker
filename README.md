@@ -7,24 +7,24 @@ or to make staging possible on air-gapped installations.
 The tools is packaged as a docker image, so it can be used on any system
 with Docker support, not requiring any other prerequisites.
 
-Examples:
+## Examples:
 
 The generated buildpacks will be put into the current working directory `$PWD`
 and can be uploaded to a CF instance via `cf create-buildpack ...`
 
-## Build current SUSE ruby buildpack
+### Build current SUSE ruby buildpack
 
 ```
 docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE ruby
 ```
 
-## Build older version of SUSE ruby buildpack
+### Build older version of SUSE ruby buildpack
 
 ```
 docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE ruby v1.7.7.1
 ```
 
-## Build current version of all SUSE buildpacks
+### Build current version of all SUSE buildpacks
 
 ```
 docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE all
@@ -32,7 +32,7 @@ docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE all
 
 It is not possible to specify older version numbers when building *all* buildpacks.
 
-## Build current cloudfoundry go buildpack
+### Build current cloudfoundry go buildpack
 
 Also don't prompt to accept the disclaimer:
 
@@ -40,3 +40,24 @@ Also don't prompt to accept the disclaimer:
 docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager --accept-external-binaries cloudfoundry go
 ```
 
+
+## Usage
+
+```
+package [--accept-external-binaries] ORG [all | LANGUAGE [TAG]]
+```
+
+ORG is the github organization hosting the buildpack repos, i.e. "cloudfoundry"
+or "SUSE".
+
+
+## Disclaimer
+
+Some Cloud Foundry buildpacks can reference binaries with proprietary or
+mutually incompatible open source licenses which cannot be distributed together
+as offline/cached buildpack archives. Operators who wish to package and maintain
+offline buildpacks will be responsible for any required licensing or export
+compliance obligations.
+
+For automation purposes you can use the `--accept-external-binaries` option to
+accept this disclaimer without the interactive prompt.
