@@ -44,8 +44,10 @@ function package() {
     ORG=$1
     LANGUAGE=$2
     VERSION=$3
-    PACKAGER_DIR=src/${LANGUAGE}/vendor/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
-    URL=https://github.com/${ORG}/cf-${LANGUAGE}-buildpack
+    BUILDPACK=cf-${LANGUAGE}-buildpack
+    VENDOR_DIR=/${BUILDPACK}/src/${LANGUAGE}/vendor
+    PACKAGER_DIR=${VENDOR_DIR}/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
+    URL=https://github.com/${ORG}/${BUILDPACK}
 
     if ! curl --head --silent --fail --output /dev/null ${URL}; then
         echo "Can't fetch buildpack from ${URL}"
@@ -55,8 +57,8 @@ function package() {
     cd ${HOME}
     set -ex
 
-    git clone --recursive ${URL}
-    cd cf-${LANGUAGE}-buildpack
+    git clone --recursive ${URL} /${BUILDPACK}
+    cd /${BUILDPACK}
     if [ -n "${VERSION}" ]; then
         git checkout ${VERSION}
         git submodule update --init --recursive
@@ -73,9 +75,13 @@ function package() {
     elif [[ -f .envrc && -d ${PACKAGER_DIR} ]]; then
         source .envrc
         (cd ${PACKAGER_DIR} && go install)
-        buildpack-packager --cached
+        if [ -d ${VENDOR_DIR}/github.com/google/subcommands ]; then
+            buildpack-packager build --cached
+        else
+            buildpack-packager --cached
+        fi
     else
-        echo "Don't know how to build the ${ORG}/cf-${LANGUAGE}-buildpack"
+        echo "Don't know how to build the ${ORG}/${BUILDPACK}"
         exit 1
     fi
 
