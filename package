@@ -89,10 +89,10 @@ if [ "${org}" == "suse" ]; then
     org=SUSE
 fi
 
-if [ "${2:-}" == "all" ]; then
+if [ "${1:-}" == "all" ]; then
     for language in binary dotnet-core go java nodejs php python ruby staticfile; do
         # skipping dotnet-core for now because it has no SUSE assets yet
-        if [ "${org}" == "SUSE" && "${language}" == "dotnet-core" ]; then
+        if [[ "${org}" == "SUSE" && "${language}" == "dotnet-core" ]]; then
             continue
         fi
         package ${org} ${language}
