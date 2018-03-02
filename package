@@ -76,7 +76,7 @@ function package() {
         source .envrc
         (cd ${PACKAGER_DIR} && go install)
         if [ -d ${VENDOR_DIR}/github.com/google/subcommands ]; then
-            buildpack-packager build --cached
+            buildpack-packager build --cached=true
         else
             buildpack-packager --cached
         fi
