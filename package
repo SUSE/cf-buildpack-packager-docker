@@ -57,12 +57,14 @@ function package() {
     cd ${HOME}
     set -ex
 
+    if [ -z "${VERSION}" ]; then
+        VERSION=$(curl -s https://api.github.com/repos/SUSE/${BUILDPACK}/releases/latest | jq -r .tag_name)
+    fi
+
     git clone --recursive ${URL} /${BUILDPACK}
     cd /${BUILDPACK}
-    if [ -n "${VERSION}" ]; then
-        git checkout ${VERSION}
-        git submodule update --init --recursive
-    fi
+    git checkout ${VERSION}
+    git submodule update --init --recursive
 
     if [ -f cf.Gemfile ]; then
         BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 config build.nokogiri --use-system-libraries
