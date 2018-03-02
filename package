@@ -44,7 +44,10 @@ function package() {
     ORG=$1
     LANGUAGE=$2
     VERSION=$3
-    BUILDPACK=cf-${LANGUAGE}-buildpack
+    BUILDPACK=${LANGUAGE}-buildpack
+    if [ "${ORG}" == "SUSE" ]; then
+        BUILDPACK=cf-${BUILDPACK}
+    fi
     VENDOR_DIR=/${BUILDPACK}/src/${LANGUAGE}/vendor
     PACKAGER_DIR=${VENDOR_DIR}/github.com/cloudfoundry/libbuildpack/packager/buildpack-packager
     URL=https://github.com/${ORG}/${BUILDPACK}
@@ -58,7 +61,7 @@ function package() {
     set -ex
 
     if [ -z "${VERSION}" ]; then
-        VERSION=$(curl -s https://api.github.com/repos/SUSE/${BUILDPACK}/releases/latest | jq -r .tag_name)
+        VERSION=$(curl -s https://api.github.com/repos/${ORG}/${BUILDPACK}/releases/latest | jq -r .tag_name)
     fi
 
     git clone --recursive ${URL} /${BUILDPACK}
