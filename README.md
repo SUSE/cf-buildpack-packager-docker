@@ -12,7 +12,7 @@ with Docker support, not requiring any other prerequisites.
 The generated buildpacks will be put into the current working directory `$PWD`
 and can be uploaded to a CF instance via `cf create-buildpack ...`
 
-### Build current SUSE ruby buildpack
+### Build latest released SUSE ruby buildpack
 
 ```
 docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE ruby
@@ -24,7 +24,14 @@ docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE ruby
 docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE ruby v1.7.7.1
 ```
 
-### Build current version of all SUSE buildpacks
+You can get the list of currently installed buildpacks from your Cloud Foundry
+instance via:
+
+```
+cf buildpacks
+```
+
+### Build latest released versions of all SUSE buildpacks
 
 ```
 docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE all
@@ -32,7 +39,7 @@ docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE all
 
 It is not possible to specify older version numbers when building *all* buildpacks.
 
-### Build current cloudfoundry go buildpack
+### Build latest released cloudfoundry go buildpack
 
 Also don't prompt to accept the disclaimer:
 
@@ -44,7 +51,7 @@ docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager --accept-exte
 ## Usage
 
 ```
-package [--accept-external-binaries] ORG [all | LANGUAGE [TAG]]
+package [--accept-external-binaries] ORG <all | LANGUAGE> [TAG]
 ```
 
 ORG is the github organization hosting the buildpack repos, i.e. "cloudfoundry"
