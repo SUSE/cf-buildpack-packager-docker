@@ -15,13 +15,13 @@ and can be uploaded to a CF instance via `cf create-buildpack ...`
 ### Build latest released SUSE ruby buildpack
 
 ```
-docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE ruby
+docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE ruby
 ```
 
 ### Build older version of SUSE ruby buildpack
 
 ```
-docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE ruby v1.7.7.1
+docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE ruby v1.7.7.1
 ```
 
 You can get the list of currently installed buildpacks from your Cloud Foundry
@@ -34,7 +34,7 @@ cf buildpacks
 ### Build latest released versions of all SUSE buildpacks
 
 ```
-docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager SUSE all
+docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE all
 ```
 
 It is not possible to specify older version numbers when building *all* buildpacks.
@@ -44,7 +44,7 @@ It is not possible to specify older version numbers when building *all* buildpac
 Also don't prompt to accept the disclaimer:
 
 ```
-docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager --accept-external-binaries cloudfoundry go
+docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager --accept-external-binaries cloudfoundry go
 ```
 
 
