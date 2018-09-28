@@ -8,7 +8,7 @@ fi
 if [ "${1:---help}" == "--help" ]; then
     shift
     cat <<'EOF'
-usage: package [--accept-external-binaries] ORG [all | LANGUAGE [TAG]]
+usage: package [--accept-external-binaries] ORG [all | LANGUAGE [TAG]] [-any-stack | -stack your_stack]
 
 ORG is the github organization hosting the buildpack repos, i.e.
 "cloudfoundry" or "SUSE".
@@ -41,9 +41,19 @@ EOF
 fi
 
 function package() {
-    ORG=$1
-    LANGUAGE=$2
-    VERSION=$3
+    ORG=$1 && shift
+    LANGUAGE=$1 && shift
+    if [[ $1 =~ "-any-stack" ]] || [[ $1 =~ "-stack" ]]; then
+      STACK=$1
+    else
+      VERSION=$1
+      shift
+    fi
+
+    # If the previous argument didn't set the stack, this one does
+    if [ -z $STACK ] && [ ! -z $1 ]; then
+      STACK=$1
+    fi
     BUILDPACK=${LANGUAGE}-buildpack
     if [ "${ORG}" == "SUSE" ]; then
         BUILDPACK=cf-${BUILDPACK}
@@ -81,7 +91,7 @@ function package() {
         source .envrc
         (cd ${PACKAGER_DIR} && go install)
         if [ -d ${VENDOR_DIR}/github.com/google/subcommands ]; then
-            buildpack-packager build --cached=true
+            buildpack-packager build --cached=true $STACK
         else
             buildpack-packager --cached
         fi
@@ -106,7 +116,7 @@ if [ "${1:-}" == "all" ]; then
         if [[ "${org}" == "SUSE" && "${language}" == "dotnet-core" ]]; then
             continue
         fi
-        package ${org} ${language}
+        package ${org} ${language} $@
     done
 else
     package $org $@
