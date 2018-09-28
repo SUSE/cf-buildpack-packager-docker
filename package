@@ -8,10 +8,18 @@ fi
 if [ "${1:---help}" == "--help" ]; then
     shift
     cat <<'EOF'
-usage: package [--accept-external-binaries] ORG [all | LANGUAGE [TAG]]
+usage: package [--accept-external-binaries] ORG [all [STACK] | LANGUAGE [TAG] [STACK]]
 
 ORG is the github organization hosting the buildpack repos, i.e.
 "cloudfoundry" or "SUSE".
+
+You cannot specify a TAG when using language "all" because the tag would be different
+for each language.
+
+Note that TAG is not optional if you want to specify STACK (but you can still use ""
+to specify the latest release).
+
+It is not possible to specify more than one stack.
 EOF
     exit
 fi
@@ -44,6 +52,8 @@ function package() {
     ORG=$1
     LANGUAGE=$2
     VERSION=$3
+    STACK=$4
+
     BUILDPACK=${LANGUAGE}-buildpack
     if [ "${ORG}" == "SUSE" ]; then
         BUILDPACK=cf-${BUILDPACK}
@@ -80,8 +90,17 @@ function package() {
     elif [[ -f .envrc && -d ${PACKAGER_DIR} ]]; then
         source .envrc
         (cd ${PACKAGER_DIR} && go install)
-        if [ -d ${VENDOR_DIR}/github.com/google/subcommands ]; then
-            buildpack-packager build --cached=true
+        MAIN_GO=${PACKAGER_DIR}/main.go
+        if grep -q github.com/google/subcommands ${MAIN_GO}; then
+            if grep -q any-stack ${MAIN_GO}; then
+                if [ -z ${STACK} ]; then
+                    buildpack-packager build --any-stack --cached=true
+                else
+                    buildpack-packager build --stack ${STACK} --cached=true
+                fi
+            else
+                buildpack-packager build --cached=true
+            fi
         else
             buildpack-packager --cached
         fi
@@ -106,10 +125,10 @@ if [ "${1:-}" == "all" ]; then
         if [[ "${org}" == "SUSE" && "${language}" == "dotnet-core" ]]; then
             continue
         fi
-        package ${org} ${language}
+        package "${org}" "${language}" "" "$@"
     done
 else
-    package $org $@
+    package "${org}" "$@"
 fi
 
 cd /out

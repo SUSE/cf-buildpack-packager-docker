@@ -18,6 +18,12 @@ and can be uploaded to a CF instance via `cf create-buildpack ...`
 docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE ruby
 ```
 
+### Build latest released SUSE ruby buildpack for sle12 stack only
+
+```
+docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE ruby "" sle12
+```
+
 ### Build older version of SUSE ruby buildpack
 
 ```
@@ -31,10 +37,10 @@ instance via:
 cf buildpacks
 ```
 
-### Build latest released versions of all SUSE buildpacks
+### Build latest released versions of all SUSE buildpacks for opensuse42 stack
 
 ```
-docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE all
+docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE all opensuse42
 ```
 
 It is not possible to specify older version numbers when building *all* buildpacks.
@@ -51,12 +57,19 @@ docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager --accept-extern
 ## Usage
 
 ```
-package [--accept-external-binaries] ORG <all | LANGUAGE> [TAG]
+package [--accept-external-binaries] ORG [all [STACK] | LANGUAGE [TAG] [STACK]]
 ```
 
 ORG is the github organization hosting the buildpack repos, i.e. "cloudfoundry"
 or "SUSE".
 
+You cannot specify a TAG when using language "all" because the tag would be different
+for each language.
+
+Note that TAG is not optional if you want to specify STACK (but you can still use ""
+to specify the latest release).
+
+It is not possible to specify more than one stack.
 
 ## Disclaimer
 
