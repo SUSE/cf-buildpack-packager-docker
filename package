@@ -82,7 +82,11 @@ function package() {
     if [ -f cf.Gemfile ]; then
         BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 config build.nokogiri --use-system-libraries
         BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3
-        BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached
+        if [ -z ${STACK} ]; then
+            BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached --any-stack
+        else
+            BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached --stack ${STACK}
+        fi
     elif [[ -f Gemfile && -f Rakefile ]]; then
         bundle.ruby2.3
         bundle.ruby2.3 exec rake clean package OFFLINE=true PINNED=true
