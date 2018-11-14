@@ -80,20 +80,20 @@ function package() {
     git submodule update --init --recursive
 
     if [ -f cf.Gemfile ]; then
-        BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 config build.nokogiri --use-system-libraries
-        BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3
-        if BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --help | grep -q any-stack; then
+        BUNDLE_GEMFILE=cf.Gemfile bundle config build.nokogiri --use-system-libraries
+        BUNDLE_GEMFILE=cf.Gemfile bundle
+        if BUNDLE_GEMFILE=cf.Gemfile bundle exec buildpack-packager --help | grep -q any-stack; then
             if [ -z ${STACK} ]; then
-                BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached --any-stack
+                BUNDLE_GEMFILE=cf.Gemfile bundle exec buildpack-packager --cached --any-stack
             else
-                BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached --stack ${STACK}
+                BUNDLE_GEMFILE=cf.Gemfile bundle exec buildpack-packager --cached --stack ${STACK}
             fi
         else
-            BUNDLE_GEMFILE=cf.Gemfile bundle.ruby2.3 exec buildpack-packager --cached
+            BUNDLE_GEMFILE=cf.Gemfile bundle exec buildpack-packager --cached
         fi
     elif [[ -f Gemfile && -f Rakefile ]]; then
-        bundle.ruby2.3
-        bundle.ruby2.3 exec rake clean package OFFLINE=true PINNED=true
+        bundle
+        bundle exec rake clean package OFFLINE=true PINNED=true
         cd build
     elif [[ -f .envrc && -d ${PACKAGER_DIR} ]]; then
         source .envrc
