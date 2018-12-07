@@ -48,6 +48,26 @@ EOF
     done
 fi
 
+function install_buildpack_packager() {
+
+  # Assuming we are in the BUILDPACK directory
+
+  PACKAGER_DIR=$1
+  if [[ -d $PACKAGER_DIR ]]; then
+    (cd ${PACKAGER_DIR} && go install)
+    echo ${PACKAGER_DIR}/main.go
+  elif [[ -e go.mod ]]; then
+    PACKAGER=buildpack-packager.go
+    curl https://raw.githubusercontent.com/cloudfoundry/libbuildpack/master/packager/buildpack-packager/main.go \
+         --silent --output $PACKAGER
+    go install $PACKAGER
+    echo $PACKAGER
+  else
+    (>&2 echo "buildpack-packager missing")
+    exit 1
+  fi
+}
+
 function package() {
     ORG=$1
     LANGUAGE=$2
@@ -95,10 +115,9 @@ function package() {
         bundle
         bundle exec rake clean package OFFLINE=true PINNED=true
         cd build
-    elif [[ -f .envrc && -d ${PACKAGER_DIR} ]]; then
+    elif [[ -f .envrc ]] && [[ -d ${PACKAGER_DIR} || -f go.mod ]]; then
         source .envrc
-        (cd ${PACKAGER_DIR} && go install)
-        MAIN_GO=${PACKAGER_DIR}/main.go
+        MAIN_GO=$(install_buildpack_packager ${PACKAGER_DIR})
         if grep -q github.com/google/subcommands ${MAIN_GO}; then
             if grep -q any-stack ${MAIN_GO}; then
                 if [ -z ${STACK} ]; then
