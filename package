@@ -57,6 +57,10 @@ function install_buildpack_packager() {
     (cd ${PACKAGER_DIR} && go install)
     echo ${PACKAGER_DIR}/main.go
   elif [[ -e go.mod ]]; then
+    # go.sum files not modified since 2019 may have been created by Go prior 1.11.4, which had a broken checksum algorithm
+    if [[ -e go.sum && $(git rev-list HEAD --since=2019-01-01 -- go.sum | wc -l) -eq 0 ]]; then
+      rm go.sum
+    fi
     PACKAGER=buildpack-packager.go
     curl https://raw.githubusercontent.com/cloudfoundry/libbuildpack/master/packager/buildpack-packager/main.go \
          --silent --output $PACKAGER
