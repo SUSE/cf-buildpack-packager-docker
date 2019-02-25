@@ -19,7 +19,7 @@ publish: tag
 	docker push splatform/cf-buildpack-packager
 
 clean:
-	-rm *.zip 2> /dev/null
+	-rm -f ./*.zip 2> /dev/null
 
 run:
 	docker run -it --rm -v $(PWD):/out splatform/cf-buildpack-packager --accept-external-binaries SUSE $(TARGET)

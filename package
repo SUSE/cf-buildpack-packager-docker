@@ -153,6 +153,7 @@ if [ "${org}" == "suse" ]; then
 fi
 
 if [ "${1:-}" == "all" ]; then
+    shift
     for language in binary dotnet-core go java nodejs php python ruby staticfile; do
         # skipping dotnet-core for now because it has no SUSE assets yet
         if [[ "${org}" == "SUSE" && "${language}" == "dotnet-core" ]]; then
