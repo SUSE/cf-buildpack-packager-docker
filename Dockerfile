@@ -1,4 +1,4 @@
-ARG base_image=opensuse/leap:15.0
+ARG base_image=opensuse/leap:15.1
 FROM ${base_image}
 
 RUN zypper in -y ruby-devel zlib-devel libxml2-devel libxslt-devel gcc make \
