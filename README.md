@@ -18,10 +18,10 @@ and can be uploaded to a CF instance via `cf create-buildpack ...`
 docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE ruby
 ```
 
-### Build latest released SUSE ruby buildpack for sle12 stack only
+### Build latest released SUSE ruby buildpack for sle15 stack only
 
 ```
-docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE ruby "" sle12
+docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE ruby "" sle15
 ```
 
 ### Build older version of SUSE ruby buildpack
@@ -37,10 +37,10 @@ instance via:
 cf buildpacks
 ```
 
-### Build latest released versions of all SUSE buildpacks for opensuse42 stack
+### Build latest released versions of all SUSE buildpacks for sle12 stack
 
 ```
-docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE all opensuse42
+docker run -it --rm -v $PWD:/out splatform/cf-buildpack-packager SUSE all sle12
 ```
 
 It is not possible to specify older version numbers when building *all* buildpacks.
